@@ -1,50 +1,91 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const Leaders = require('../models/leaders');
 const leaderrouter = express.Router();
 
 leaderrouter.use(bodyParser.json());
 
 leaderrouter.route('/')
-.all((req,res,next) =>{
-   res.statusCode = 200;
-   res.setHeader('Contetnt-type','text/plain');
-   next();
-})
 .get((req,res,next) =>{
-      res.end("Will send all the leaders to u");
+   Leaders.find({})
+    .then((Leaders) =>{
+      res.statusCode = 200;
+      res.setHeader('Content-Type','application/json');
+      res.json(Leaders);
+    },(err)=> next(err))
+    .catch( (err) =>next(err));
+   
+
 })
 .post((req,res,next) =>{
-     res.end("will create a leader "+ req.body.name + " with details " + req.body.description );
-})
+ Leaders.create(req.body)
+ .then((leader) =>{
+  console.log('leader creaed ',leader);
+  res.statusCode = 200;
+  res.setHeader('Content-Type','application/json');
+  res.json(leader);
+ },(err)=> next(err))
+ .catch( (err) =>next(err));
+
+ 
+ })
 .put((req,res,next) =>{
-    res.statusCode = 403; 
-    res.end("PUT operation no defined on / leaders");
+  res.statusCode = 403;
+res.end('PUT operation not defined on /Leaders');
 })
 .delete((req,res,next) =>{
-    res.end("Will delete all the leaders for u");
+    Leaders.remove({})
+    .then((resp) =>{
+      res.statusCode = 200;
+      res.setHeader('Content-Type','application/json');
+      res.json(resp);
+    },(err) => next(err))
+    .catch((err) => next(err));
 });
 
 
 leaderrouter.route('/:leaderId')
-.all((req,res,next) =>{
-   res.statusCode = 200;
-   res.setHeader('Contetnt-type','text/plain');
-   next();
-})
 .get((req,res,next) =>{
-      res.end("Will send the deatils of leader " + req.params.leaderId + " to u");
+    Leaders.findById(req.params.leaderId)
+    .then((leader) =>
+    {
+      res.statusCode = 200;
+      res.setHeader('Content-Type','application/json');
+      res.json(leader);
+
+    },(err) =>next(err))
+    .catch((err) =>next(err));
+
+
 })
 .post((req,res,next) =>{
-    res.statusCode = 403; 
-    res.end("POST operation no defined on / leaders");
+res.statusCode = 403;
+res.end('POST operation not defined on /leaderes/'+ req.params.leaderId);
+
 })
 .put((req,res,next) =>{
-      res.write("Will update the leader " + req.params.leaderId + " with ")
-      res.end(" name of the leader " + req.body.name + " and details " + req.body.description);
+Leaders.findByIdAndUpdate(req.params.leaderId,{
+  $set:req.body
+},{
+  new : true
+})
+.then((leader) =>{
+  res.statusCode = 200;
+  res.setHeader('Content-type','application/json');
+  res.json(leader);
+},(err)=>next(err))
+.catch((err)=>next(err));
 })
 .delete((req,res,next) =>{
-    res.end("Will delete  the leader " +req.params.leaderId + " for u");
+    Leaders.findByIdAndDelete(req.params.leaderId)
+    .then((leader) =>{
+      res.statusCode = 200;
+      res.setHeader('Content-Type','application/json');
+      res.json(leader);
+    },(err)=>next(err))
+    .catch((err)=> next(err));
+
 });
+
 module.exports = leaderrouter;
 
