@@ -4,7 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
-//const Dishes = require('./models/dishes');
+var session = require('express-session');
+var Filestore = require('session-file-store')(session);
+
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -29,10 +32,19 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('12345-67890-09876-54321'));
+
+app.use(session({
+  name:"session-id",
+  secret:'12345-67890-09876-54321',
+  saveUninitialized:false,
+  resave:false,
+  store:new Filestore()
+}));
 
 function auth (req,res,next){
-  console.log(req.headers);
+  console.log(req.session);
+  if(!req.session.user) {
   var authHeader = req.headers.authorization;
   if(!authHeader){
         err = new Error('You are no auhenicated');
@@ -46,6 +58,7 @@ function auth (req,res,next){
   var username = autho[0];
   var password = autho[1];
   if(username === "admin" && password === "password"){
+      req.session.user = 'admin';
     next();
   }
   else{
@@ -55,6 +68,20 @@ function auth (req,res,next){
     next(err);
     return;
   }
+
+}
+else{
+    if(req.session.user === 'admin'){
+      next();
+    }
+    else{
+      err = new Error('You are no auhenicated');
+      res.setHeader('WWW-Authenticate','Basic');
+      err.status = 401;
+      next(err);
+      return;
+    }
+}
 }
 
 app.use(auth);
