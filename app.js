@@ -14,6 +14,8 @@ var usersRouter = require('./routes/users');
 var dishRouter = require('./routes/dishrouter');
 var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
+const passport = require('passport');
+var authenticate = require('./authenticate');
 
 const url = "mongodb://localhost:27017/conFusion";
 const connect = mongoose.connect(url);
@@ -42,14 +44,18 @@ app.use(session({
   store:new Filestore()
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 function auth (req,res,next){
-  console.log(req.session);
-  if(!req.session.user) {
+  console.log(req.user);
+  if(!req.user) {
   
-        err = new Error('You are no auhenicated');
+        err = new Error('You are not auhenicated');
         err.status = 403;
         next(err);
         return;
@@ -58,16 +64,10 @@ function auth (req,res,next){
   
   
 else{
-    if(req.session.user === 'authenticated'){
-      next();
+       next();
     }
-    else{
-      err = new Error('You are no authenticated');
-      err.status = 403;
-      next(err);
-      return;
-    }
-}
+    
+
 }
 
 app.use(auth);
