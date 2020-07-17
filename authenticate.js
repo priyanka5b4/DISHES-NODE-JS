@@ -6,7 +6,7 @@ var jwt = require('jsonwebtoken'); // used  to create , sign and verify tokens
 var config = require('./config');
 
 var User = require('./models/user');
-const { PayloadTooLarge } = require('http-errors');
+const { PayloadTooLarge, NotExtended } = require('http-errors');
 
 
 
@@ -47,5 +47,15 @@ exports.jwtPassport = passport.use(new JWTStratergy(opts,(jwt_payload,done) =>{
 }));
 
 exports.verifyUser = passport.authenticate('jwt',{session:false});
+
+exports.verifyAdmin = (req, res, next)=>{
+           if(req.user.admin == false){
+           
+                  var err = new Error("You are not authorized to perform this operation!");
+                  err.status = 403;
+                  return next(err);
+           }
+           else next();
+                    }
 
 

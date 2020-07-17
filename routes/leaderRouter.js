@@ -18,7 +18,7 @@ leaderrouter.route('/')
    
 
 })
-.post(authenticate.verifyUser, (req,res,next) =>{
+.post(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
  Leaders.create(req.body)
  .then((leader) =>{
   console.log('leader creaed ',leader);
@@ -30,11 +30,11 @@ leaderrouter.route('/')
 
  
  })
-.put(authenticate.verifyUser, (req,res,next) =>{
+.put(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
   res.statusCode = 403;
 res.end('PUT operation not defined on /Leaders');
 })
-.delete(authenticate.verifyUser, (req,res,next) =>{
+.delete(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
     Leaders.remove({})
     .then((resp) =>{
       res.statusCode = 200;
@@ -59,12 +59,12 @@ leaderrouter.route('/:leaderId')
 
 
 })
-.post(authenticate.verifyUser, (req,res,next) =>{
+.post(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
 res.statusCode = 403;
 res.end('POST operation not defined on /leaderes/'+ req.params.leaderId);
 
 })
-.put(authenticate.verifyUser, (req,res,next) =>{
+.put(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
 Leaders.findByIdAndUpdate(req.params.leaderId,{
   $set:req.body
 },{
@@ -77,7 +77,7 @@ Leaders.findByIdAndUpdate(req.params.leaderId,{
 },(err)=>next(err))
 .catch((err)=>next(err));
 })
-.delete(authenticate.verifyUser, (req,res,next) =>{
+.delete(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
     Leaders.findByIdAndDelete(req.params.leaderId)
     .then((leader) =>{
       res.statusCode = 200;

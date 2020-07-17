@@ -19,7 +19,7 @@ promorouter.route('/')
     
  
  })
- .post(authenticate.verifyUser, (req,res,next) =>{
+ .post(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
   Promotions.create(req.body)
   .then((promotion) =>{
    console.log('promotion creaed ',promotion);
@@ -31,11 +31,11 @@ promorouter.route('/')
  
   
   })
- .put(authenticate.verifyUser, (req,res,next) =>{
+ .put(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
    res.statusCode = 403;
  res.end('PUT operation not defined on /Promotions');
  })
- .delete((req,res,next) =>{
+ .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req,res,next) =>{
      Promotions.remove({})
      .then((resp) =>{
        res.statusCode = 200;
@@ -63,12 +63,12 @@ promorouter.route('/:promoId')
 
 
 })
-.post(authenticate.verifyUser, (req,res,next) =>{
+.post(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
 res.statusCode = 403;
 res.end('POST operation not defined on /promotiones/'+ req.params.promotionId);
 
 })
-.put(authenticate.verifyUser, (req,res,next) =>{
+.put(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
 Promotions.findByIdAndUpdate(req.params.promoId,{
   $set:req.body
 },{
@@ -81,7 +81,7 @@ Promotions.findByIdAndUpdate(req.params.promoId,{
 },(err)=>next(err))
 .catch((err)=>next(err));
 })
-.delete(authenticate.verifyUser, (req,res,next) =>{
+.delete(authenticate.verifyUser,authenticate.verifyAdmin,  (req,res,next) =>{
     Promotions.findByIdAndDelete(req.params.promoId)
     .then((promotion) =>{
       res.statusCode = 200;
