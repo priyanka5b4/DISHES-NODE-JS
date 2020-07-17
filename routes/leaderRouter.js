@@ -4,6 +4,7 @@ const Leaders = require('../models/leaders');
 const leaderrouter = express.Router();
 
 leaderrouter.use(bodyParser.json());
+var authenticate = require('../authenticate');
 
 leaderrouter.route('/')
 .get((req,res,next) =>{
@@ -17,7 +18,7 @@ leaderrouter.route('/')
    
 
 })
-.post((req,res,next) =>{
+.post(authenticate.verifyUser, (req,res,next) =>{
  Leaders.create(req.body)
  .then((leader) =>{
   console.log('leader creaed ',leader);
@@ -29,11 +30,11 @@ leaderrouter.route('/')
 
  
  })
-.put((req,res,next) =>{
+.put(authenticate.verifyUser, (req,res,next) =>{
   res.statusCode = 403;
 res.end('PUT operation not defined on /Leaders');
 })
-.delete((req,res,next) =>{
+.delete(authenticate.verifyUser, (req,res,next) =>{
     Leaders.remove({})
     .then((resp) =>{
       res.statusCode = 200;
@@ -58,12 +59,12 @@ leaderrouter.route('/:leaderId')
 
 
 })
-.post((req,res,next) =>{
+.post(authenticate.verifyUser, (req,res,next) =>{
 res.statusCode = 403;
 res.end('POST operation not defined on /leaderes/'+ req.params.leaderId);
 
 })
-.put((req,res,next) =>{
+.put(authenticate.verifyUser, (req,res,next) =>{
 Leaders.findByIdAndUpdate(req.params.leaderId,{
   $set:req.body
 },{
@@ -76,7 +77,7 @@ Leaders.findByIdAndUpdate(req.params.leaderId,{
 },(err)=>next(err))
 .catch((err)=>next(err));
 })
-.delete((req,res,next) =>{
+.delete(authenticate.verifyUser, (req,res,next) =>{
     Leaders.findByIdAndDelete(req.params.leaderId)
     .then((leader) =>{
       res.statusCode = 200;
